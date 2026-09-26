@@ -1,0 +1,5 @@
+import { AppShell } from "@/components/app-shell";
+import { PageHeading } from "@/components/page-heading";
+
+const users=[['Example Director','Director','All branches','Active'],['Example Sales Manager','Sales Manager','Amanzimtoti','Active'],['Example Sales Rep','Sales','Durban','Active'],['Example Production Manager','Production Manager','Main factory','Invited']];
+export default function UsersPage(){return <AppShell active="Users & roles"><PageHeading title="Users and roles" description="Example staff and role layout." action="Invite user"/><article className="panel"><div className="panel-head"><h2>Staff accounts</h2><span>Roles are illustrative</span></div><div className="table-wrap"><table><thead><tr><th>Name</th><th>Role</th><th>Scope</th><th>Status</th></tr></thead><tbody>{users.map(([name,role,scope,status])=><tr key={name}><td><strong>{name}</strong></td><td><span className="badge blue">{role}</span></td><td>{scope}</td><td><span className={`badge ${status==='Invited'?'orange':''}`}>{status}</span></td></tr>)}</tbody></table></div></article></AppShell>}

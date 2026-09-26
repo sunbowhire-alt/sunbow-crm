@@ -1,0 +1,5 @@
+import { AppShell } from "@/components/app-shell";
+import { PageHeading } from "@/components/page-heading";
+
+const stages=[['New leads','48','Facebook, website and WhatsApp enquiries'],['Contacted','61','Salesperson has made first contact'],['Quote sent','43','Waiting for customer decision'],['Negotiation','22','Pricing or specification discussion'],['Won','12','Ready for order and deposit']];
+export default function LeadsPage(){return <AppShell active="Lead pipeline"><PageHeading title="Lead pipeline" description="Example lead pipeline layout." action="Add lead"/><section style={{display:'grid',gridTemplateColumns:'repeat(auto-fit,minmax(210px,1fr))',gap:14}}>{stages.map(([stage,count,note],i)=><article className="panel" key={stage}><div className="panel-head"><h2>{stage}</h2><span className={`badge ${i===4?'':'blue'}`}>{count}</span></div><p style={{fontSize:13,color:'var(--muted)',lineHeight:1.55}}>{note}</p><div className="list-row"><strong>{i===0?'Review unassigned leads':i===4?'Create customer orders':'Open stage'}</strong></div></article>)}</section></AppShell>}

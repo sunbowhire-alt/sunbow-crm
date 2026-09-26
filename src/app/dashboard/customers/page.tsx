@@ -1,0 +1,5 @@
+import { AppShell } from "@/components/app-shell";
+import { PageHeading } from "@/components/page-heading";
+
+const customers=[['Example Events A','Durban','079 *** 2145','R182 500','Active'],['Example Company B','Pretoria','082 *** 7412','R145 000','Active'],['Example Events C','Bloemfontein','083 *** 9091','R96 400','Follow-up'],['Example Catering D','East London','078 *** 4305','R78 000','Active']];
+export default function CustomersPage(){return <AppShell active="Customers"><PageHeading title="Customer database" description="Example customer records for layout review." action="Add customer"/><article className="panel"><div className="panel-head"><h2>Example customers</h2><span>Example records</span></div><div className="table-wrap"><table><thead><tr><th>Customer</th><th>Branch</th><th>Contact</th><th>Lifetime value</th><th>Status</th></tr></thead><tbody>{customers.map(([name,branch,contact,value,status])=><tr key={name}><td><strong>{name}</strong></td><td>{branch}</td><td>{contact}</td><td>{value}</td><td><span className={`badge ${status==='Follow-up'?'orange':''}`}>{status}</span></td></tr>)}</tbody></table></div></article></AppShell>}
