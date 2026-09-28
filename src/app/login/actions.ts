@@ -16,6 +16,14 @@ export async function login(formData: FormData) {
   }
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
+  const { data: { user } } = await supabase.auth.getUser();
+  const { data: profile } = user
+    ? await supabase.from("profiles").select("active, role, branch_id").eq("id", user.id).single()
+    : { data: null };
+  if (!profile?.active || (!["director", "admin"].includes(profile.role) && !profile.branch_id)) {
+    await supabase.auth.signOut();
+    redirect("/login?error=Staff%20access%20has%20not%20been%20enabled");
+  }
   redirect("/dashboard");
 }
 

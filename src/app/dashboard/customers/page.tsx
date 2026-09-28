@@ -1,5 +1,42 @@
 import { AppShell } from "@/components/app-shell";
+import { BranchFilter } from "@/components/branch-filter";
 import { PageHeading } from "@/components/page-heading";
+import { getStaffContext, selectedBranch, scopeName } from "@/lib/staff";
+import { formattedDate } from "@/lib/live-data";
 
-const customers=[['Example Events A','Durban','079 *** 2145','R182 500','Active'],['Example Company B','Pretoria','082 *** 7412','R145 000','Active'],['Example Events C','Bloemfontein','083 *** 9091','R96 400','Follow-up'],['Example Catering D','East London','078 *** 4305','R78 000','Active']];
-export default function CustomersPage(){return <AppShell active="Customers"><PageHeading title="Customer database" description="Example customer records for layout review." action="Add customer"/><article className="panel"><div className="panel-head"><h2>Example customers</h2><span>Example records</span></div><div className="table-wrap"><table><thead><tr><th>Customer</th><th>Branch</th><th>Contact</th><th>Lifetime value</th><th>Status</th></tr></thead><tbody>{customers.map(([name,branch,contact,value,status])=><tr key={name}><td><strong>{name}</strong></td><td>{branch}</td><td>{contact}</td><td>{value}</td><td><span className={`badge ${status==='Follow-up'?'orange':''}`}>{status}</span></td></tr>)}</tbody></table></div></article></AppShell>}
+const examples = [
+  ["Example Events A", "Durban", "079 *** 2145", "Active"],
+  ["Example Company B", "Pretoria", "082 *** 7412", "Active"],
+  ["Example Events C", "Bloemfontein", "083 *** 9091", "Follow-up"],
+];
+
+export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ branch?: string }> }) {
+  const context = await getStaffContext();
+  if (context.preview) return <AppShell active="Customers">
+    <PageHeading title="Customer database" description="Example customer records for layout review." />
+    <article className="panel"><div className="panel-head"><h2>Example customers</h2><span>Preview only</span></div>
+      <div className="table-wrap"><table><thead><tr><th>Customer</th><th>Branch</th><th>Contact</th><th>Status</th></tr></thead>
+        <tbody>{examples.map(([name, branch, phone, status]) => <tr key={name}><td><strong>{name}</strong></td><td>{branch}</td><td>{phone}</td><td>{status}</td></tr>)}</tbody>
+      </table></div>
+    </article>
+  </AppShell>;
+
+  const branchId = selectedBranch(context, (await searchParams).branch);
+  let query = context.supabase.from("customers")
+    .select("id, name, company, phone, branch_id, created_at")
+    .order("created_at", { ascending: false }).limit(100);
+  if (branchId) query = query.eq("branch_id", branchId);
+  const { data: customers, error } = await query;
+  if (error) throw new Error("Unable to load customers.");
+  const branchNames = new Map(context.branches.map((branch) => [branch.id, branch.name]));
+  return <AppShell active="Customers">
+    <PageHeading title="Customers" description={`Live customer records · ${scopeName(context, branchId)}`} />
+    <BranchFilter context={context} branchId={branchId} />
+    <article className="panel"><div className="panel-head"><h2>Recent customers</h2><span>Latest 100</span></div>
+      <div className="table-wrap"><table><thead><tr><th>Name</th><th>Company</th><th>Branch</th><th>Phone</th><th>Added</th></tr></thead>
+        <tbody>{(customers ?? []).map((customer) => <tr key={customer.id}><td><strong>{customer.name}</strong></td><td>{customer.company ?? "—"}</td><td>{branchNames.get(customer.branch_id) ?? "Unassigned"}</td><td>{customer.phone ?? "—"}</td><td>{formattedDate(customer.created_at)}</td></tr>)}</tbody>
+      </table></div>
+      {!customers?.length && <p className="empty-state">No customers recorded for this view yet.</p>}
+    </article>
+  </AppShell>;
+}

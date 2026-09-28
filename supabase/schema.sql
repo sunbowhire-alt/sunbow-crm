@@ -83,16 +83,9 @@ alter table public.orders enable row level security;
 alter table public.production_jobs enable row level security;
 alter table public.activities enable row level security;
 
-create policy "Authenticated staff can read profiles" on public.profiles for select to authenticated using (active = true);
-create policy "Authenticated staff can read customers" on public.customers for select to authenticated using (true);
-create policy "Authenticated staff can create customers" on public.customers for insert to authenticated with check (true);
-create policy "Authenticated staff can update customers" on public.customers for update to authenticated using (true);
-create policy "Authenticated staff can read leads" on public.leads for select to authenticated using (true);
-create policy "Authenticated staff can create leads" on public.leads for insert to authenticated with check (true);
-create policy "Authenticated staff can update leads" on public.leads for update to authenticated using (true);
-create policy "Authenticated staff can read orders" on public.orders for select to authenticated using (true);
-create policy "Authenticated staff can read jobs" on public.production_jobs for select to authenticated using (true);
-create policy "Authenticated staff can read activities" on public.activities for select to authenticated using (true);
+-- Phase-one access policies are in migrations/20260928_phase1_access.sql.
+-- Do not enter operational data before applying that migration and testing
+-- the branch/role policies with separate staff accounts.
 
 create index leads_assigned_status_idx on public.leads (assigned_to, status);
 create index leads_follow_up_idx on public.leads (next_follow_up) where status not in ('won','lost');
