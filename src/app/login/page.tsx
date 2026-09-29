@@ -4,7 +4,6 @@ import Image from "next/image";
 
 export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
   const { error } = await searchParams;
-  const preview = process.env.SUNBOW_PREVIEW_MODE === "true" && process.env.VERCEL_ENV === "preview";
   return (
     <main className="login-shell">
       <section className="login-visual">
@@ -35,7 +34,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <Link className="forgot-link" href="/forgot-password">Forgot password?</Link>
           <button className="primary-button login-submit" type="submit">Sign in to CRM <span aria-hidden="true">→</span></button>
-          {preview && <Link className="preview-link" href="/dashboard">View protected interface preview</Link>}
+          <Link className="forgot-link" href="/activate">New staff? Activate your account</Link>
           <div className="login-note">For authorised Sunbow staff. Contact a Director if you need an account or role change.</div>
         </form>
       </section>

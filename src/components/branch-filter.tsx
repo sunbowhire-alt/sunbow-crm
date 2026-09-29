@@ -1,7 +1,6 @@
 import { StaffContext, isNationalRole, scopeName } from "@/lib/staff";
 
 export function BranchFilter({ context, branchId }: { context: StaffContext; branchId: string | null }) {
-  if (context.preview) return null;
   if (!isNationalRole(context.profile.role)) {
     return <div className="scope-label">Branch: <strong>{scopeName(context, branchId)}</strong></div>;
   }

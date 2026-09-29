@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import type { EmailOtpType } from "@supabase/supabase-js";
 
 export default function AcceptInvitePage() {
   const router = useRouter();
@@ -18,21 +19,45 @@ export default function AcceptInvitePage() {
     let mounted = true;
     async function activate() {
       try {
-        const supabase = createSupabaseBrowserClient();
+        const query = new URLSearchParams(window.location.search);
         const fragment = new URLSearchParams(window.location.hash.slice(1));
+        const supabase = createSupabaseBrowserClient();
+        if (query.has("error") || query.has("error_code")) {
+          throw new Error("This link is invalid or has expired. Request a fresh link from the sign-in page.");
+        }
         const accessToken = fragment.get("access_token");
         const refreshToken = fragment.get("refresh_token");
-        if (accessToken && refreshToken) {
-          const { error: sessionError } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
+        const tokenHash = query.get("token_hash");
+        const type = query.get("type");
+        if (tokenHash && type) {
+          const validTypes: EmailOtpType[] = ["recovery", "invite", "signup", "magiclink", "email"];
+          if (!validTypes.includes(type as EmailOtpType)) throw new Error("Unsupported activation link.");
+          const { error: tokenError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash, type: type as EmailOtpType,
           });
-          // Remove credentials from the address bar after the session is stored.
-          window.history.replaceState(null, "", window.location.pathname);
-          if (sessionError) throw sessionError;
+          if (tokenError) throw tokenError;
+        } else if (accessToken && refreshToken) {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            const { error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken, refresh_token: refreshToken,
+            });
+            if (sessionError) throw sessionError;
+          }
+        } else if (query.has("code")) {
+          // @supabase/ssr normally consumes PKCE codes when its browser client
+          // initializes. Exchange explicitly only if that did not yield a user.
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) {
+            const { error: codeError } = await supabase.auth.exchangeCodeForSession(query.get("code")!);
+            if (codeError) throw codeError;
+          }
         }
+        window.history.replaceState(null, "", window.location.pathname);
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) throw new Error("This link is invalid or has expired. Request a new password reset link.");
+        if (userError || !user) throw new Error("This link is invalid or has expired. Request a fresh link from the sign-in page.");
+        const { error: claimError } = await supabase.rpc("claim_staff_invitation");
+        if (claimError) throw claimError;
         const { data: profile, error: profileError } = await supabase
           .from("profiles").select("active, role, branch_id").eq("id", user.id).single();
         if (profileError || !profile?.active || (!["director", "admin"].includes(profile.role) && !profile.branch_id)) {
@@ -41,6 +66,7 @@ export default function AcceptInvitePage() {
         }
         if (mounted) setReady(true);
       } catch (cause) {
+        window.history.replaceState(null, "", window.location.pathname);
         if (mounted) setError(cause instanceof Error ? cause.message : "Invitation could not be opened.");
       }
     }
@@ -87,7 +113,7 @@ export default function AcceptInvitePage() {
           <span className="login-form-eyebrow">SUNBOW CRM</span>
           <h2>Set your password.</h2>
           <p>Choose a new password for your Sunbow staff account.</p>
-          {error && <div className="form-error" role="alert">{error}</div>}
+          {error && <div className="form-error" role="alert">{error} <Link href="/forgot-password">Request a new reset link</Link> or <Link href="/activate">activate staff access</Link>.</div>}
           {!ready && !error && <p>Checking your secure link…</p>}
           {ready && <form onSubmit={setNewPassword}>
             <div className="field">

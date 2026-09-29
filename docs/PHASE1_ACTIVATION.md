@@ -1,41 +1,22 @@
-# Phase 1 activation: staff login and live branch dashboards
+# Phase 1 activation and release checks
 
-The application code is ready to read real records, but it must be connected to the **intended Sunbow Supabase project** before operational use. Do not put customer or staff data into an unverified project or use the sample-only preview mode for live data.
+## Database and hosting
 
-## Configuration sequence
+- Verify the intended Supabase project reference is `zwwdfywvxhdgdgtnltml`; take a backup before changing an existing schema.
+- Apply `supabase/schema.sql` only if the initial tables do not exist. Apply `20260928_phase1_access.sql` if not yet applied, then `20260929_staff_access.sql`. Confirm eight branches, RLS policies, `staff_invitations`, and the three staff RPC functions.
+- Keep the existing active Shane profile as `admin`. No public signup alone grants CRM access: an email must be saved by an active admin, verified by Supabase, and claimed by that same authenticated account.
+- Confirm the Vercel target has the correct Supabase URL and publishable key. Remove `SUNBOW_PREVIEW_MODE` if it remains configured; the application ignores it. Do not use a Supabase server secret for this release.
+- In Supabase Auth URL Configuration, allow the exact deployed `https://<crm-host>/accept-invite` destination and set Site URL to the CRM origin. Check the email templates use `ConfirmationURL` or the correct `RedirectTo`. Enable password-reset email only after a fresh link reaches the correct page. Configure production SMTP for nationwide use.
 
-1. Confirm the Sunbow-owned Supabase project and its Project URL. Rotate any secret key that was previously shared outside the project's secret manager. The current read-only dashboards do not need a service-role/secret key.
-2. In that project's SQL editor, apply `supabase/schema.sql` if the initial tables do not yet exist, followed by `supabase/migrations/20260928_phase1_access.sql`. If the schema already exists, apply only the migration. Keep a database backup before migrating existing records.
-3. Inspect legacy profiles/customers/leads/orders/jobs whose `branch_id` remains null. Assign the intended branch after reconciling the old branch text. Branch staff cannot see unassigned rows; directors/admins can inspect them. Do not guess a branch.
-4. Create the first staff account in Supabase Auth, then insert its `profiles` row using that user's Auth UUID, full name, `role='director'`, `active=true`, and a null `branch_id`. Create branch staff accounts with `role='manager'|'sales'|'production'` and an actual `branches.id`. An active Auth account without a matching active profile cannot sign in to the CRM.
-5. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in Vercel for the intended environment, redeploy, and verify the sign-in page. Keep Vercel Authentication enabled while the rollout remains private. `SUNBOW_PREVIEW_MODE` must be false or absent in operational deployments.
-6. Test with a director plus two branch users from different branches. The director must see national and branch-filtered counts; each branch user must see only their branch records. Test direct Supabase API reads and writes, not only the UI. Confirm disabled/unprofiled users are denied.
-7. Reconcile each live dashboard count against the database and source records. The dashboard shows live counts of customers, leads, orders, and production jobs; it does **not** yet calculate revenue, stock, rentals, or cross-system figures.
+## Access checks with real accounts
 
-## Staff provisioning example
+1. Shane signs in as `admin`, sees eight branches and the Staff access screen. He invites `sunbowhire@gmail.com` as `director` with nationwide scope. The address owner opens `/activate`, receives the email, verifies it, and sets a password. Shane never chooses or sees that password.
+2. Test a fresh password-reset email for Shane. It must return to `/accept-invite` on the intended deployment, complete password change, and permit sign-in. One-time expired links should show a clear error and allow a new request.
+3. Create two test staff users assigned to different branches. Test UI queries and direct Supabase Data API queries: each sees only their own branch customers, leads, orders, jobs and activities; a director sees national counts and a branch filter.
+4. Disable one test user in Staff access. Their next dashboard request and direct Data API read must be denied. Unprofiled users and unapproved email signups must not enter the CRM. Confirm branch staff cannot call `invite_staff` or `manage_staff_profile`; an admin cannot change their own access or create a second admin through the screen.
+5. Reconcile live dashboard counts with database records. Empty tables must show empty states, never sample metrics. Check desktop and mobile login, activation, dashboards, branch filter, sign-out and staff management.
+6. After these checks, decide which Vercel deployment serves staff and adjust Deployment Protection for that target. Keep Supabase Auth and RLS in force. Monitor errors, email delivery and staff support during rollout.
 
-After creating the Auth user in the selected Supabase project, retrieve the actual UUID from Auth > Users. In the SQL editor, substitute the UUID, name, role, and branch intentionally:
+## Current scope
 
-```sql
-insert into public.profiles (id, full_name, role, branch_id, active)
-values (
-  '<AUTH_USER_UUID>'::uuid,
-  '<STAFF_NAME>',
-  'sales',
-  (select id from public.branches where code = 'DURBAN'),
-  true
-);
-```
-
-For a nationwide director, use `role='director'` and `branch_id=null`. Never give a branch user the director/admin role solely to make a dashboard work.
-
-## Acceptance before nationwide staff rollout
-
-- All eight branch areas are present and correctly named.
-- Every staff member has an approved role and branch assignment; directors/admins are explicitly approved for nationwide access.
-- A direct query as a Durban user cannot retrieve or edit a Pretoria customer or lead.
-- A disabled or unprofiled Auth user cannot access dashboard data.
-- The preview sample banner never appears on a live staff session; live dashboards do not contain example figures.
-- Current login, branch switch, sign-out, and empty-data views work on desktop and mobile.
-
-The Phase 1 release is read-only for dashboards. Customer/lead editing, staff invitations, transactions, stock, and rental workflows require later implementation and acceptance.
+This release provides identity, role/branch access and read-only live dashboards for customers, leads, orders and production jobs. It does not create or edit operational records, calculate stock or rental availability, or implement quotation, transfer and dispatch workflows. These remain in the ERP roadmap.

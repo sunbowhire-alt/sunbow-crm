@@ -4,23 +4,8 @@ import { PageHeading } from "@/components/page-heading";
 import { getStaffContext, selectedBranch, scopeName } from "@/lib/staff";
 import { formattedDate } from "@/lib/live-data";
 
-const examples = [
-  ["Example Events A", "Durban", "079 *** 2145", "Active"],
-  ["Example Company B", "Pretoria", "082 *** 7412", "Active"],
-  ["Example Events C", "Bloemfontein", "083 *** 9091", "Follow-up"],
-];
-
 export default async function CustomersPage({ searchParams }: { searchParams: Promise<{ branch?: string }> }) {
   const context = await getStaffContext();
-  if (context.preview) return <AppShell active="Customers">
-    <PageHeading title="Customer database" description="Example customer records for layout review." />
-    <article className="panel"><div className="panel-head"><h2>Example customers</h2><span>Preview only</span></div>
-      <div className="table-wrap"><table><thead><tr><th>Customer</th><th>Branch</th><th>Contact</th><th>Status</th></tr></thead>
-        <tbody>{examples.map(([name, branch, phone, status]) => <tr key={name}><td><strong>{name}</strong></td><td>{branch}</td><td>{phone}</td><td>{status}</td></tr>)}</tbody>
-      </table></div>
-    </article>
-  </AppShell>;
-
   const branchId = selectedBranch(context, (await searchParams).branch);
   let query = context.supabase.from("customers")
     .select("id, name, company, phone, branch_id, created_at")

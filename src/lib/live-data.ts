@@ -3,7 +3,6 @@ import { StaffContext } from "@/lib/staff";
 type TableName = "customers" | "leads" | "orders" | "production_jobs" | "profiles";
 
 export async function liveCount(context: StaffContext, table: TableName, branchId: string | null, status?: { column: string; value: string; exclude?: boolean }) {
-  if (context.preview) return 0;
   let query = context.supabase.from(table).select("id", { count: "exact", head: true });
   if (branchId && table !== "profiles") query = query.eq("branch_id", branchId);
   if (status) query = status.exclude ? query.neq(status.column, status.value) : query.eq(status.column, status.value);

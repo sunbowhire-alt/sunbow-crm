@@ -17,6 +17,7 @@ export async function login(formData: FormData) {
   const { error } = await supabase.auth.signInWithPassword({ email, password });
   if (error) redirect(`/login?error=${encodeURIComponent(error.message)}`);
   const { data: { user } } = await supabase.auth.getUser();
+  if (user) await supabase.rpc("claim_staff_invitation");
   const { data: profile } = user
     ? await supabase.from("profiles").select("active, role, branch_id").eq("id", user.id).single()
     : { data: null };
@@ -32,7 +33,7 @@ export async function logout() {
     const supabase = await createSupabaseServerClient();
     await supabase.auth.signOut();
   } catch {
-    // The preview has no Supabase session.
+    // A missing session must still return the user to the login screen.
   }
   redirect("/login");
 }

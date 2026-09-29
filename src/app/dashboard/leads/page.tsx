@@ -4,15 +4,8 @@ import { PageHeading } from "@/components/page-heading";
 import { getStaffContext, selectedBranch, scopeName } from "@/lib/staff";
 import { formattedDate } from "@/lib/live-data";
 
-const stages = [["New leads", "48"], ["Contacted", "61"], ["Quote sent", "43"], ["Negotiation", "22"], ["Won", "12"]];
-
 export default async function LeadsPage({ searchParams }: { searchParams: Promise<{ branch?: string }> }) {
   const context = await getStaffContext();
-  if (context.preview) return <AppShell active="Lead pipeline">
-    <PageHeading title="Lead pipeline" description="Example lead pipeline layout." />
-    <section className="lead-stages">{stages.map(([stage, count]) => <article className="panel" key={stage}><div className="panel-head"><h2>{stage}</h2><span className="badge blue">{count}</span></div></article>)}</section>
-  </AppShell>;
-
   const branchId = selectedBranch(context, (await searchParams).branch);
   let query = context.supabase.from("leads")
     .select("id, contact_name, product_interest, status, next_follow_up")

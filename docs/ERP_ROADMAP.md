@@ -10,6 +10,10 @@ Working plan based on Job Card **HAI-SUN-ERP-2026-001** (opened 31 May 2026). Th
 - Inventory, stock movements/transfers, serialized assets, QR/barcode workflows, rentals, dispatch/receiving, real reporting, and audit capture are not implemented.
 - The protected Vercel preview is for visual review. Production operational use and the job card's Production Deployment milestone remain outstanding.
 
+## Phase 1 update (29 September 2026)
+
+The branch now contains real-data-only dashboards, admin-managed staff invitations and role changes, and a recovery callback that accepts Supabase email link formats. This is code prepared for release, not evidence that the new migration was applied or that nationwide users completed acceptance checks. The operational pilot and later ERP modules remain outstanding.
+
 ## First usable operational release
 
 Pilot **one branch and one product flow**: an authorized salesperson creates a customer, quote, and order; the factory reserves materials, records production stages and finished goods; dispatch records delivery; management sees the actual order and stock movements. Every mutation records who acted and when. Test branch access with at least two users from different branches. Expand nationally after the pilot reconciles with physical stock and the existing paper/system process.

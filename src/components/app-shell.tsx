@@ -13,7 +13,6 @@ const links = [
 
 export async function AppShell({ children, active = "Director" }: { children: React.ReactNode; active?: string }) {
   const context = await getStaffContext();
-  const preview = context.preview;
   const visibleLinks = isNationalRole(context.profile.role) ? links : links.filter(([, label]) => label !== "Users & roles");
   return (
     <div className="app-shell">
@@ -26,10 +25,9 @@ export async function AppShell({ children, active = "Director" }: { children: Re
         <div className="sidebar-foot"><strong>Sunbow Tents Manufacture</strong><br />Internal business system</div>
       </aside>
       <div className="main">
-        {preview && <div className="preview-banner">INTERFACE PREVIEW · All figures and records shown are illustrative. Changes are not saved.</div>}
         <header className="topbar">
-          <div className="topbar-title"><strong>{active} workspace</strong><span>{preview ? "Sunbow CRM" : `${context.profile.full_name} · ${scopeName(context, context.profile.branch_id)}`}</span></div>
-          {preview ? <span className="badge blue">Protected preview</span> : <form action={logout}><button className="secondary-button" type="submit">Sign out</button></form>}
+          <div className="topbar-title"><strong>{active} workspace</strong><span>{context.profile.full_name} · {scopeName(context, context.profile.branch_id)}</span></div>
+          <form action={logout}><button className="secondary-button" type="submit">Sign out</button></form>
         </header>
         <main className="content">{children}</main>
       </div>
