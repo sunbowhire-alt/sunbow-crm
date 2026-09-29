@@ -5,6 +5,20 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+function activationError(cause: unknown) {
+  if (cause instanceof Error && cause.message.includes("Supabase environment variables are not configured")) {
+    return "Staff activation is not configured on this deployment. Contact a Director.";
+  }
+  const status = typeof cause === "object" && cause !== null && "status" in cause ? cause.status : null;
+  if (status === 429 || (cause instanceof Error && /rate limit/i.test(cause.message))) {
+    return "Email sending is temporarily limited. Please wait before trying again or contact a Director.";
+  }
+  if (cause instanceof TypeError && /fetch|network/i.test(cause.message)) {
+    return "We could not connect to the activation service. Check your connection and try again.";
+  }
+  return "We could not send the activation link. Please try again later or contact a Director.";
+}
+
 export default function ActivatePage() {
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
@@ -23,8 +37,8 @@ export default function ActivatePage() {
       });
       if (otpError) throw otpError;
       setSent(true);
-    } catch {
-      setError("We could not send the activation link. Please try again later.");
+    } catch (cause) {
+      setError(activationError(cause));
     } finally {
       setBusy(false);
     }
