@@ -32,12 +32,12 @@ export default function AcceptInvitePage() {
           if (sessionError) throw sessionError;
         }
         const { data: { user }, error: userError } = await supabase.auth.getUser();
-        if (userError || !user) throw new Error("This invitation is invalid or has expired. Ask a Director for a new invitation.");
+        if (userError || !user) throw new Error("This link is invalid or has expired. Request a new password reset link.");
         const { data: profile, error: profileError } = await supabase
           .from("profiles").select("active, role, branch_id").eq("id", user.id).single();
         if (profileError || !profile?.active || (!["director", "admin"].includes(profile.role) && !profile.branch_id)) {
           await supabase.auth.signOut();
-          throw new Error("Staff access has not been enabled for this invitation.");
+          throw new Error("Staff access has not been enabled for this account.");
         }
         if (mounted) setReady(true);
       } catch (cause) {
@@ -57,7 +57,7 @@ export default function AcceptInvitePage() {
     try {
       const supabase = createSupabaseBrowserClient();
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Your invitation session has expired. Open the invitation again.");
+      if (!user) throw new Error("Your session has expired. Request a new password reset link.");
       const { error: updateError } = await supabase.auth.updateUser({ password });
       if (updateError) throw updateError;
       setPassword("");
@@ -86,9 +86,9 @@ export default function AcceptInvitePage() {
           <div className="login-form-mark" aria-hidden="true">S</div>
           <span className="login-form-eyebrow">SUNBOW CRM</span>
           <h2>Set your password.</h2>
-          <p>Finish activating your Sunbow staff account.</p>
+          <p>Choose a new password for your Sunbow staff account.</p>
           {error && <div className="form-error" role="alert">{error}</div>}
-          {!ready && !error && <p>Checking your invitation…</p>}
+          {!ready && !error && <p>Checking your secure link…</p>}
           {ready && <form onSubmit={setNewPassword}>
             <div className="field">
               <label htmlFor="new-password">New password</label>
@@ -98,9 +98,9 @@ export default function AcceptInvitePage() {
               <label htmlFor="confirm-password">Confirm password</label>
               <input id="confirm-password" type="password" autoComplete="new-password" minLength={12} value={confirmation} onChange={(event) => setConfirmation(event.target.value)} required />
             </div>
-            <button className="primary-button login-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Activate account →"}</button>
+            <button className="primary-button login-submit" type="submit" disabled={busy}>{busy ? "Saving…" : "Save password →"}</button>
           </form>}
-          <div className="login-note">Only use an invitation sent to your own email address. <Link href="/login">Back to sign in</Link></div>
+          <div className="login-note">Only use a link sent to your own email address. <Link href="/login">Back to sign in</Link></div>
         </div>
       </section>
     </main>

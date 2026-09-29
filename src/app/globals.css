@@ -119,6 +119,8 @@ tr:last-child td { border-bottom:0; }
 .field input::placeholder { color:#9aa8bb; }
 .field input:focus { border-color:var(--blue); box-shadow:0 0 0 3px rgba(7,87,184,.12); }
 .login-form .login-submit { width:100%; margin-top:5px; padding:15px 17px; display:flex; justify-content:space-between; align-items:center; }
+.forgot-link { display:block; width:max-content; margin:-4px 0 18px auto; color:var(--blue); font-size:13px; font-weight:700; }
+.forgot-link:hover { text-decoration:underline; }
 .login-submit span { font-size:21px; line-height:14px; }
 .preview-link { display:block; text-align:center; margin-top:17px; color:var(--blue); font-size:14px; font-weight:700; }
 .form-error { background:#fff0f0; color:#b52b32; border:1px solid #ffd0d3; padding:11px 12px; border-radius:9px; font-size:13px; margin-bottom:18px; }

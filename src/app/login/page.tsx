@@ -33,6 +33,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <label htmlFor="password">Password</label>
             <input id="password" name="password" type="password" autoComplete="current-password" placeholder="Enter your password" required />
           </div>
+          <Link className="forgot-link" href="/forgot-password">Forgot password?</Link>
           <button className="primary-button login-submit" type="submit">Sign in to CRM <span aria-hidden="true">→</span></button>
           {preview && <Link className="preview-link" href="/dashboard">View protected interface preview</Link>}
           <div className="login-note">For authorised Sunbow staff. Contact a Director if you need an account or role change.</div>
