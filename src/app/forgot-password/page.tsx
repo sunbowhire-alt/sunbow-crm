@@ -6,6 +6,7 @@ import { FormEvent, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 export default function ForgotPasswordPage() {
+  const recoveryReady = process.env.NEXT_PUBLIC_PASSWORD_RESET_ENABLED === "true";
   const [email, setEmail] = useState("");
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -45,7 +46,9 @@ export default function ForgotPasswordPage() {
           <div className="login-form-mark" aria-hidden="true">S</div>
           <span className="login-form-eyebrow">SUNBOW CRM</span>
           <h2>Reset your password.</h2>
-          {sent ? (
+          {!recoveryReady ? (
+            <p role="status">Password reset links are being activated for this private CRM. Contact a Director for access in the meantime.</p>
+          ) : sent ? (
             <p role="status">If this email has an active staff account, a password reset link is on its way. Check your inbox and spam folder.</p>
           ) : (
             <>
