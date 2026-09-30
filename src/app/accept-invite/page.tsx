@@ -17,6 +17,7 @@ function activationError(cause: unknown) {
 export default function AcceptInvitePage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
+  const [registration, setRegistration] = useState<"pending" | "rejected" | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [password, setPassword] = useState("");
@@ -67,6 +68,15 @@ export default function AcceptInvitePage() {
         if (claimError) throw claimError;
         const { data: profile, error: profileError } = await supabase
           .from("profiles").select("active, role, branch_id").eq("id", user.id).single();
+        if ((!profile || profileError) && user.user_metadata?.sunbow_registration === "staff") {
+          const { data: status, error: requestError } = await supabase.rpc("request_staff_registration");
+          if (requestError) throw requestError;
+          await supabase.auth.signOut();
+          if (status === "pending" || status === "rejected") {
+            if (mounted) setRegistration(status);
+            return;
+          }
+        }
         if (profileError || !profile?.active || (!["director", "admin"].includes(profile.role) && !profile.branch_id)) {
           await supabase.auth.signOut();
           throw new Error("Staff access has not been enabled for this account.");
@@ -118,8 +128,12 @@ export default function AcceptInvitePage() {
         <div className="login-form">
           <div className="login-form-mark" aria-hidden="true">S</div>
           <span className="login-form-eyebrow">SUNBOW CRM</span>
-          <h2>Set your password.</h2>
-          <p>Choose a new password for your Sunbow staff account.</p>
+          <h2>{registration ? "Registration review." : "Set your password."}</h2>
+          {registration === "pending"
+            ? <p role="status">Your email is verified and your request is waiting for Director approval. Your password is already set. Sign in after the Director approves your role and branch.</p>
+            : registration === "rejected"
+              ? <p role="status">Your registration was not approved. Contact a Director if you believe this is a mistake.</p>
+              : <p>Choose a new password for your Sunbow staff account.</p>}
           {error && <div className="form-error" role="alert">{error} <Link href="/forgot-password">Request a new reset link</Link> or <Link href="/activate">activate staff access</Link>.</div>}
           {!ready && !error && <p>Checking your secure link…</p>}
           {ready && <form onSubmit={setNewPassword}>
