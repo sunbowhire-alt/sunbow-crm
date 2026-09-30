@@ -139,6 +139,10 @@ tr:last-child td { border-bottom:0; }
 .staff-form-inline { min-width:430px; }
 .staff-form .staff-checkbox { display:flex; align-items:center; gap:7px; min-height:41px; }
 .staff-form button { cursor:pointer; }
+.staff-request { display:flex; flex-wrap:wrap; align-items:end; gap:16px; padding:18px 0; border-top:1px solid #e4eaf2; }
+.staff-request > div { min-width:220px; flex:1; color:var(--muted); font-size:13px; line-height:1.6; }
+.staff-request > div strong { color:var(--navy); font-size:15px; }
+.staff-request .staff-form-inline { min-width:0; }
 
 @media (max-width: 1000px) {
   .stats { grid-template-columns:repeat(2,1fr); }
