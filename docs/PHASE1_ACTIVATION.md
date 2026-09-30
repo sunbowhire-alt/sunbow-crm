@@ -3,8 +3,8 @@
 ## Database and hosting
 
 - Verify the intended Supabase project reference is `zwwdfywvxhdgdgtnltml`; take a backup before changing an existing schema.
-- Apply `supabase/schema.sql` only if the initial tables do not exist. Apply `20260928_phase1_access.sql` if not yet applied, then `20260929_staff_access.sql`. Confirm eight branches, RLS policies, `staff_invitations`, and the three staff RPC functions.
-- Keep the existing active Shane profile as `admin`. No public signup alone grants CRM access: an email must be saved by an active admin, verified by Supabase, and claimed by that same authenticated account.
+- Apply `supabase/schema.sql` only if the initial tables do not exist. Apply `20260928_phase1_access.sql`, `20260929_staff_access.sql`, then `20260930_director_registration_approval.sql` if not yet applied. Confirm eight branches and RLS policies.
+- Keep the existing active Shane profile as `admin` and `sunbowhire@gmail.com` as the active Director. A signup alone never creates an active staff profile. The applicant verifies their email; the Director then chooses a role and branch and approves the request.
 - Confirm the Vercel target has the correct Supabase URL and publishable key. Remove `SUNBOW_PREVIEW_MODE` if it remains configured; the application ignores it. Do not use a Supabase server secret for this release.
 - In Supabase Auth URL Configuration, allow the exact deployed `https://<crm-host>/accept-invite` destination and set Site URL to the CRM origin. Check the email templates use `ConfirmationURL` or the correct `RedirectTo`. Enable password-reset email only after a fresh link reaches the correct page. Configure production SMTP for nationwide use.
 
@@ -24,12 +24,13 @@ Example Magic Link body: `<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash
 
 ## Access checks with real accounts
 
-1. Shane signs in as `admin`, sees eight branches and the Staff access screen. He invites `sunbowhire@gmail.com` as `director` with nationwide scope. The address owner opens `/activate`, receives the email, verifies it, and sets a password. Shane never chooses or sees that password.
-2. Test a fresh password-reset email for Shane. It must return to `/accept-invite` on the intended deployment, complete password change, and permit sign-in. One-time expired links should show a clear error and allow a new request.
-3. Create two test staff users assigned to different branches. Test UI queries and direct Supabase Data API queries: each sees only their own branch customers, leads, orders, jobs and activities; a director sees national counts and a branch filter.
-4. Disable one test user in Staff access. Their next dashboard request and direct Data API read must be denied. Unprofiled users and unapproved email signups must not enter the CRM. Confirm branch staff cannot call `invite_staff` or `manage_staff_profile`; an admin cannot change their own access or create a second admin through the screen.
-5. Reconcile live dashboard counts with database records. Empty tables must show empty states, never sample metrics. Check desktop and mobile login, activation, dashboards, branch filter, sign-out and staff management.
-6. After these checks, decide which Vercel deployment serves staff and adjust Deployment Protection for that target. Keep Supabase Auth and RLS in force. Monitor errors, email delivery and staff support during rollout.
+1. A prospective staff member submits `/register` with their name, email and password, confirms their email in the same browser, and sees the pending approval message. They cannot enter `/dashboard`, and their direct Data API reads must return no operational rows.
+2. The active Director signs in, reviews Registration requests, selects a branch role and active branch, then approves. Verify the new user can sign in with their own password. Check that an admin and branch staff cannot call `review_staff_registration`, `invite_staff`, or `manage_staff_profile` to bypass the Director.
+3. Reject a separate test request and confirm it cannot sign in. Test a fresh password-reset email for an active account. It must return to `/accept-invite`, change the password and permit sign-in.
+4. Approve two test staff users assigned to different branches. Test UI and direct Data API queries: each sees only their own branch customers, leads, orders, jobs and activities; the Director sees nationwide counts.
+5. Disable one test user in Staff access. Their next dashboard request and direct Data API read must be denied. Unprofiled users and unapproved email signups must not enter the CRM.
+6. Reconcile live dashboard counts with database records. Empty tables must show empty states, never sample metrics. Check desktop and mobile registration, login, dashboards, branch filter, sign-out and staff review.
+7. After these checks, decide which Vercel deployment serves staff and adjust Deployment Protection for that target. Keep Supabase Auth and RLS in force. Monitor errors, email delivery and staff support during rollout.
 
 ## Current scope
 
