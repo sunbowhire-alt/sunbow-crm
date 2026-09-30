@@ -8,6 +8,20 @@
 - Confirm the Vercel target has the correct Supabase URL and publishable key. Remove `SUNBOW_PREVIEW_MODE` if it remains configured; the application ignores it. Do not use a Supabase server secret for this release.
 - In Supabase Auth URL Configuration, allow the exact deployed `https://<crm-host>/accept-invite` destination and set Site URL to the CRM origin. Check the email templates use `ConfirmationURL` or the correct `RedirectTo`. Enable password-reset email only after a fresh link reaches the correct page. Configure production SMTP for nationwide use.
 
+## Email links across browsers and devices
+
+`@supabase/ssr` initiates the PKCE flow. A default `{{ .ConfirmationURL }}` email returns an authorization code, which can only be exchanged in the browser that requested the email. An admin requesting a link in one browser and a staff member opening it in another produces `PKCE code verifier not found in storage`.
+
+For a link that works in the recipient's own browser or phone, configure the hosted Supabase **Authentication → Email Templates** to use token hashes. The existing `/accept-invite` page verifies the hash with `verifyOtp`, claims only a pre-approved invitation, and then offers password setup. Use these links in the templates, retaining any other desired branding/text:
+
+| Template | Link destination |
+| --- | --- |
+| Magic Link | `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email` |
+| Confirm signup | `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email` |
+| Reset password | `{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=recovery` |
+
+Example Magic Link body: `<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash }}&type=email">Activate Sunbow staff access</a></p>`. Keep the redirect URL allow list restricted to the exact CRM host and route. The link is one-time and must never be copied into support chat or logs. Test a fresh link in a different browser before declaring cross-device activation complete. If the templates have not yet been changed, the recipient can request a new link at `/activate` in their own browser and open the newest email in that same browser.
+
 ## Access checks with real accounts
 
 1. Shane signs in as `admin`, sees eight branches and the Staff access screen. He invites `sunbowhire@gmail.com` as `director` with nationwide scope. The address owner opens `/activate`, receives the email, verifies it, and sets a password. Shane never chooses or sees that password.
