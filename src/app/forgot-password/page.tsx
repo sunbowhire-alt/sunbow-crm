@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { FormEvent, useState } from "react";
+import { FormEvent, useRef, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
 function resetErrorMessage(cause: unknown) {
@@ -22,9 +22,12 @@ export default function ForgotPasswordPage() {
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
   const [error, setError] = useState("");
+  const sending = useRef(false);
 
   async function requestReset(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (sending.current) return;
+    sending.current = true;
     setBusy(true);
     setError("");
     try {
@@ -37,6 +40,7 @@ export default function ForgotPasswordPage() {
     } catch (cause) {
       setError(resetErrorMessage(cause));
     } finally {
+      sending.current = false;
       setBusy(false);
     }
   }
