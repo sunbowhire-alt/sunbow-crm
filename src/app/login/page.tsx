@@ -2,8 +2,8 @@ import { login } from "./actions";
 import Link from "next/link";
 import Image from "next/image";
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string }> }) {
-  const { error } = await searchParams;
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ error?: string; notice?: string }> }) {
+  const { error, notice } = await searchParams;
   return (
     <main className="login-shell">
       <section className="login-visual">
@@ -24,6 +24,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <h2>Welcome back.</h2>
           <p>Sign in with your Sunbow staff account to continue.</p>
           {error ? <div className="form-error">{error}</div> : null}
+          {notice ? <div className="form-notice" role="status">{notice}</div> : null}
           <div className="field">
             <label htmlFor="email">Email address</label>
             <input id="email" name="email" type="email" autoComplete="username" placeholder="name@sunbowtents.co.za" required />
@@ -34,8 +35,8 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           </div>
           <Link className="forgot-link" href="/forgot-password">Forgot password?</Link>
           <button className="primary-button login-submit" type="submit">Sign in to CRM <span aria-hidden="true">→</span></button>
-          <Link className="forgot-link" href="/activate">New staff? Activate your account</Link>
-          <div className="login-note">For authorised Sunbow staff. Contact a Director if you need an account or role change.</div>
+          <Link className="forgot-link" href="/register">New staff? Request an account</Link>
+          <div className="login-note">Every new account requires Director approval before CRM access.</div>
         </form>
       </section>
     </main>
