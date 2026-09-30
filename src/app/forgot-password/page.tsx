@@ -5,6 +5,17 @@ import Link from "next/link";
 import { FormEvent, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 
+function resetErrorMessage(cause: unknown) {
+  if (cause instanceof Error && cause.message.includes("Supabase environment variables are not configured")) {
+    return "Password recovery is not configured on this deployment. Contact a Director.";
+  }
+  const status = typeof cause === "object" && cause !== null && "status" in cause ? cause.status : null;
+  if (status === 429 || (cause instanceof Error && /rate limit/i.test(cause.message))) {
+    return "Email sending is temporarily limited. Please wait before trying again or contact a Director.";
+  }
+  return "We could not send a reset link right now. Please try again later or contact a Director.";
+}
+
 export default function ForgotPasswordPage() {
   const recoveryReady = process.env.NEXT_PUBLIC_PASSWORD_RESET_ENABLED === "true";
   const [email, setEmail] = useState("");
@@ -23,8 +34,8 @@ export default function ForgotPasswordPage() {
       });
       if (resetError) throw resetError;
       setSent(true);
-    } catch {
-      setError("We could not send a reset link right now. Please try again later or contact a Director.");
+    } catch (cause) {
+      setError(resetErrorMessage(cause));
     } finally {
       setBusy(false);
     }
