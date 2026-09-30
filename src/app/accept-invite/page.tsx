@@ -7,6 +7,13 @@ import { FormEvent, useEffect, useState } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
+function activationError(cause: unknown) {
+  if (cause instanceof Error && /PKCE code verifier|code verifier not found/i.test(cause.message)) {
+    return "This link was opened in a different browser or device from the one that requested it. Open Activate staff access here, request a fresh link, and open the new email in this same browser. Never share the link with anyone else.";
+  }
+  return cause instanceof Error ? cause.message : "Invitation could not be opened.";
+}
+
 export default function AcceptInvitePage() {
   const router = useRouter();
   const [ready, setReady] = useState(false);
@@ -67,7 +74,7 @@ export default function AcceptInvitePage() {
         if (mounted) setReady(true);
       } catch (cause) {
         window.history.replaceState(null, "", window.location.pathname);
-        if (mounted) setError(cause instanceof Error ? cause.message : "Invitation could not be opened.");
+        if (mounted) setError(activationError(cause));
       }
     }
     void activate();
