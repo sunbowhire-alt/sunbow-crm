@@ -11,7 +11,7 @@ function result(message: string, error = false): never {
 
 async function adminContext() {
   const context = await getStaffContext();
-  if (context.profile.role !== "admin") result("Only an admin can manage staff access.", true);
+  if (context.profile.role !== "director") result("Only a Director can manage staff access.", true);
   return context;
 }
 
@@ -48,4 +48,26 @@ export async function updateStaff(formData: FormData) {
   });
   if (error) result(error.message, true);
   result("Staff access updated.");
+}
+
+export async function approveRegistration(formData: FormData) {
+  const context = await adminContext();
+  const userId = String(formData.get("user_id") ?? "");
+  const { role, branchId } = assignment(formData, context.branches);
+  if (!["manager", "sales", "production"].includes(role)) result("Choose a branch staff role.", true);
+  const { error } = await context.supabase.rpc("review_staff_registration", {
+    p_user_id: userId, p_approve: true, p_role: role, p_branch_id: branchId,
+  });
+  if (error) result(error.message, true);
+  result("Registration approved. This staff member can now sign in.");
+}
+
+export async function rejectRegistration(formData: FormData) {
+  const context = await adminContext();
+  const userId = String(formData.get("user_id") ?? "");
+  const { error } = await context.supabase.rpc("review_staff_registration", {
+    p_user_id: userId, p_approve: false,
+  });
+  if (error) result(error.message, true);
+  result("Registration declined.");
 }
