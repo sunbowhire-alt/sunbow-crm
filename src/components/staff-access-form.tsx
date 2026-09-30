@@ -3,14 +3,14 @@
 import { useState } from "react";
 import { Branch, StaffRole } from "@/lib/staff";
 
-export function StaffAccessFields({ branches, role: initialRole, branchId = null }: {
-  branches: Branch[]; role: StaffRole; branchId?: string | null;
+export function StaffAccessFields({ branches, role: initialRole, branchId = null, allowDirector = true }: {
+  branches: Branch[]; role: StaffRole; branchId?: string | null; allowDirector?: boolean;
 }) {
   const [role, setRole] = useState(initialRole);
   const national = role === "director" || role === "admin";
   return <>
     <label>Role <select name="role" value={role} onChange={(event) => setRole(event.target.value as StaffRole)}>
-      <option value="director">Director · nationwide</option>
+      {allowDirector && <option value="director">Director · nationwide</option>}
       {initialRole === "admin" && <option value="admin" disabled>Admin · existing account</option>}
       <option value="manager">Branch manager</option>
       <option value="sales">Sales</option>
