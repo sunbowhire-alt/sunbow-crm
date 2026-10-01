@@ -12,9 +12,9 @@ Sunbow's Phase 1 staff-access release: eight branches, Supabase staff login, Dir
 
 ## Deployment
 
-This repository is connected to the `sunbow-crm` Vercel project in `sunbowgroup`. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the target environment. The application has no sample-mode bypass; every dashboard request requires a valid Supabase session and an active staff profile. SQL policies enforce the branch boundary even for direct Data API requests.
+Deploy the `nationwide-v1` branch to Netlify using its automatic Next.js detection. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Netlify project for both builds and functions. Keep `NEXT_PUBLIC_PASSWORD_RESET_ENABLED=false` until recovery has been tested. See `docs/NETLIFY_DEPLOYMENT.md` for the rollout steps. The application has no sample-mode bypass; every dashboard request requires a valid Supabase session and an active staff profile. SQL policies enforce the branch boundary even for direct Data API requests.
 
-Keep Vercel Authentication enabled while testing a preview. For a nationwide staff rollout, confirm a Vercel plan permitting commercial use; verify registration, Director approval, recovery, disabled-account denial, and two-branch isolation with actual accounts; then make the production deployment reachable to staff. Vercel deployment protection is separate from Sunbow staff login. Review `docs/PHASE1_ACTIVATION.md` for release checks.
+Verify registration, Director approval, recovery, disabled-account denial, and two-branch isolation with actual accounts before directing staff to the Netlify site. Netlify hosting is separate from Sunbow staff login. Review `docs/PHASE1_ACTIVATION.md` for release checks. The previous Vercel preview remains an independent deployment.
 
 No Supabase server secret is used by this app. Rotate any secret previously exposed outside a secrets manager before adding server-side features. Production SMTP is configured in Supabase; verify delivery in the staff acceptance flow.
 
