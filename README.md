@@ -1,32 +1,23 @@
 # Sunbow CRM
 
-Internal CRM and manufacturing operations platform for Sunbow Tents Manufacture.
-
-## Included in this starter
-
-- Responsive Sunbow-branded login and application shell
-- Director, sales and manufacturing dashboards
-- Customer database, lead pipeline and user/role screens
-- Supabase server/browser client setup
-- Initial PostgreSQL schema with row-level security
-- Vercel-ready Next.js App Router project
+Sunbow's Phase 1 staff-access release: eight branches, Supabase staff login, Director-approved registration, and live branch-scoped dashboards. The application uses real records only. Empty views mean no operational records have been entered; this release does not include inventory, rentals, quotations, or transactional editing.
 
 ## Local setup
 
-1. Copy `.env.example` to `.env.local`.
-2. Add the Supabase URL and publishable key.
-3. Run `supabase/schema.sql` in the Supabase SQL editor.
-4. Install packages with `npm install`.
-5. Start with `npm run dev`.
+1. Copy `.env.example` to `.env.local` and set the Supabase URL and publishable key. No Supabase secret key is used by this application.
+2. On a new database, apply `supabase/schema.sql`, then the dated migrations in order through `20261001_harden_phase1_table_grants.sql`. Existing installations should apply only migrations not yet applied. The intended Sunbow Supabase project already has these migrations.
+3. Run `npm ci && npm run dev`.
+4. New staff register at `/register` with their own email and password, confirm the email, then wait for the active Director to approve the request and assign a branch role in **Staff access**. Signing up alone never grants access. Existing Director-created invitations use `/activate`.
+5. Add the exact deployed `/accept-invite` URL to Supabase Auth's redirect allowlist and set the Site URL to the deployed CRM origin. Configure the token-hash email templates in `docs/PHASE1_ACTIVATION.md` for links that work across devices. Set `NEXT_PUBLIC_PASSWORD_RESET_ENABLED=true` only after testing a real recovery email and password change.
 
-## Protected Vercel preview
+## Deployment
 
-Import this GitHub repository into a `sunbow-crm` Vercel project with the repository root as the Root Directory. Use the Next.js framework preset; the lockfile selects npm. Check that **Deployment Protection / Vercel Authentication** is enabled for Preview deployments before sharing a URL. Deploy a non-production branch to Preview, not Production.
+Deploy the `nationwide-v1` branch to Netlify with the Next.js runtime selected. `netlify.toml` defines the build command and `.next` publish directory. Configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the Netlify project for both builds and functions. Keep `NEXT_PUBLIC_PASSWORD_RESET_ENABLED=false` until recovery has been tested. See `docs/NETLIFY_DEPLOYMENT.md` for the rollout steps. The application has no sample-mode bypass; every dashboard request requires a valid Supabase session and an active staff profile. SQL policies enforce the branch boundary even for direct Data API requests.
 
-For an interface-only preview, set `SUNBOW_PREVIEW_MODE=true` in the Vercel **Preview** environment only. This bypasses staff sign-in on protected previews and displays clearly marked illustrative records. It does not save data. Never enable this setting on an unprotected deployment.
+Verify registration, Director approval, recovery, disabled-account denial, and two-branch isolation with actual accounts before directing staff to the Netlify site. Netlify hosting is separate from Sunbow staff login. Review `docs/PHASE1_ACTIVATION.md` for release checks. The previous Vercel preview remains an independent deployment.
 
-For a staff-authenticated installation, leave preview mode off, configure `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, run `supabase/schema.sql` in a dedicated Supabase project, and provision staff accounts. The `SUPABASE_SECRET_KEY` is reserved for future server features and is not needed by the current UI; never commit it. The current dashboards still contain illustrative figures and do not query the database.
+No Supabase server secret is used by this app. Rotate any secret previously exposed outside a secrets manager before adding server-side features. Production SMTP is configured in Supabase; verify delivery in the staff acceptance flow.
 
-## Current stage
+## Scope
 
-This is an interface preview, not a live operational CRM. Dashboard figures, customers, leads, and jobs are examples. Staff login can use Supabase when configured, and the dashboard route checks the server-side user session.
+This is Phase 1 identity and live reporting. The rest of the ERP job-card scope is tracked in `docs/ERP_ROADMAP.md` and has not been delivered as part of this release.
