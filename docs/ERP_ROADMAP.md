@@ -2,7 +2,7 @@
 
 Working plan based on Job Card **HAI-SUN-ERP-2026-001** (opened 31 May 2026). This is a scope and acceptance checklist for discussion with Sunbow Management and the assigned developer. It does not change the job card's OPEN – IN PROGRESS status or assert that any contractual milestone has been delivered.
 
-## Current repository baseline (28 September 2026)
+## Original repository baseline (28 September 2026)
 
 - Next.js/Vercel interface preview with login, director, sales, manufacturing, customer, lead, and user screens. The dashboard data and buttons are illustrative; changes are not saved.
 - Supabase Auth client setup and an initial SQL schema for profiles, customers, leads, orders, production jobs, and activities. The schema is not evidence that it has been applied to a live database.
@@ -10,9 +10,9 @@ Working plan based on Job Card **HAI-SUN-ERP-2026-001** (opened 31 May 2026). Th
 - Inventory, stock movements/transfers, serialized assets, QR/barcode workflows, rentals, dispatch/receiving, real reporting, and audit capture are not implemented.
 - The protected Vercel preview is for visual review. Production operational use and the job card's Production Deployment milestone remain outstanding.
 
-## Phase 1 update (29 September 2026)
+## Phase 1 update (1 October 2026)
 
-The branch now contains real-data-only dashboards, admin-managed staff invitations and role changes, and a recovery callback that accepts Supabase email link formats. This is code prepared for release, not evidence that the new migration was applied or that nationwide users completed acceptance checks. The operational pilot and later ERP modules remain outstanding.
+The release branch now contains real-data-only dashboards, Director-approved self-registration, branch-scoped reads, and a recovery callback that accepts Supabase email link formats. The access migrations are applied to the selected project. The Director account is active, but end-to-end staff acceptance checks and production rollout are outstanding. The live operational tables are empty. The operational pilot and later ERP modules remain outstanding.
 
 ## First usable operational release
 
@@ -35,14 +35,14 @@ Phases may overlap, but Phase 1 access controls and audit design are prerequisit
 
 | Job card area | Current state | Roadmap phase |
 | --- | --- | --- |
-| Manufacturing | Illustrative schedule; starter `production_jobs` table | 2 |
+| Manufacturing | Live read-only jobs screen; starter `production_jobs` table is empty | 2 |
 | National/branch inventory and audits | No item/stock ledger or stock screens | 2, 5 |
 | Transfers and logistics | No transfer, dispatch, or receiving workflow | 3 |
 | QR/barcode tracking | No scan or serialized asset workflow | 4 |
 | Rentals | No reservation, return, availability, or maintenance workflow | 4 |
-| Sales | Illustrative dashboards; starter customers/leads/orders tables | 3 |
-| Roles, branch access, audit | Login scaffolding and broad starter policies; no enforced branch matrix or populated activity log | 1 |
-| Executive reporting | Illustrative figures only | 5 |
+| Sales | Live read-only dashboards; starter customers/leads/orders tables are empty | 3 |
+| Roles, branch access, audit | Director approval and scoped read policies applied; real staff and branch acceptance checks outstanding | 1 |
+| Executive reporting | Live counts over starter tables; operational reporting remains to be built | 5 |
 
 ## Scope items to agree with Sunbow and the developer
 
@@ -59,4 +59,4 @@ The job card confirms work was initiated and lists modules/objectives, but does 
 
 - Supabase recommends combining Auth with row-level security for authorization; table grants and policies are separate controls. Test policies against actual branch and role cases, including direct API access. See https://supabase.com/docs/guides/database/postgres/row-level-security and https://supabase.com/docs/guides/api/custom-claims-and-role-based-access-control-rbac.
 - Keep operational data behind staff authentication and explicit branch permissions. Vercel deployment protection governs access to a deployment URL; it is not a substitute for application/database authorization. See https://vercel.com/docs/deployment-protection.
-- The existing `SUNBOW_PREVIEW_MODE` path is for protected, sample-only preview builds. Never use it as production ERP access or with real data.
+- `SUNBOW_PREVIEW_MODE` is obsolete and ignored by the application. Remove it from Vercel if present. The current code has no sample-data bypass.

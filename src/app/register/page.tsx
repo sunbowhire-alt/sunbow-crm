@@ -35,10 +35,18 @@ export default function RegisterPage() {
       });
       if (signUpError) throw signUpError;
       if (data.session) {
-        setConfirmed(true);
-        const { error: requestError } = await supabase.rpc("request_staff_registration");
-        if (requestError) throw requestError;
-        await supabase.auth.signOut();
+        try {
+          const { data: status, error: requestError } = await supabase.rpc("request_staff_registration");
+          if (requestError) throw requestError;
+          if (status !== "pending") {
+            throw new Error(status === "has_account"
+              ? "This email already has a staff account. Sign in instead."
+              : "This request could not be queued. Contact the Director.");
+          }
+          setConfirmed(true);
+        } finally {
+          await supabase.auth.signOut();
+        }
       }
       setPassword("");
       setSubmitted(true);

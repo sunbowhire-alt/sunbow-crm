@@ -58,8 +58,8 @@ export default function ActivatePage() {
       <div className="login-form-mark" aria-hidden="true">S</div>
       <span className="login-form-eyebrow">SUNBOW CRM</span>
       <h2>Activate staff access.</h2>
-      {sent ? <p role="status">If your email has been approved for Sunbow CRM, check your inbox for an activation link. Use the newest email and open it in this same browser.</p> : <>
-        <p>Enter the exact email address your admin approved. We’ll send a one-time link to verify it and set your password.</p>
+      {sent ? <p role="status">If a Director invited this email to Sunbow CRM, check your inbox for an activation link. Use the newest email and open it in this same browser.</p> : <>
+        <p>Enter the exact email address a Director invited. We’ll send a one-time link to verify it and set your password.</p>
         {error && <div className="form-error" role="alert">{error}</div>}
         <form onSubmit={activate}><div className="field"><label htmlFor="activation-email">Email address</label><input id="activation-email" type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></div>
           <button className="primary-button login-submit" disabled={busy} type="submit">{busy ? "Sending…" : "Send activation link →"}</button>
