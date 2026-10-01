@@ -5,7 +5,7 @@ Netlify hosts the Next.js application. The existing Supabase project `zwwdfywvxh
 ## Connect the project
 
 1. Finish signing in or creating the Sunbow Netlify account. Import `sunbowhire-alt/sunbow-crm` from GitHub as a new project.
-2. Select `nationwide-v1` as the production branch while Phase 1 is being verified. Use the repository root as the base directory. Let Netlify detect Next.js and its build settings; no static export or custom adapter is needed.
+2. Select `nationwide-v1` as the production branch while Phase 1 is being verified. Use the repository root as the base directory. Select the **Next.js runtime** in Developer settings → Build settings if it was not selected during import. The committed `netlify.toml` runs `npm run build` and publishes `.next`; no static export or custom adapter is needed.
 3. Before deploying, set these Netlify environment variables for builds and functions:
 
    | Name | Value |
@@ -14,7 +14,7 @@ Netlify hosts the Next.js application. The existing Supabase project `zwwdfywvxh
    | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | That project's publishable key, never its secret or service-role key |
    | `NEXT_PUBLIC_PASSWORD_RESET_ENABLED` | `false` until a real reset completes successfully |
 
-4. Deploy and record the exact HTTPS project URL. Limit access to the test accounts until the HTTPS page, redirect and branch authorization checks have passed. Keep the existing Vercel preview separate.
+4. Deploy and record the exact HTTPS project URL. Confirm `/register` renders; a 404 with source files listed in the deploy browser means the build settings or Next.js runtime were not applied. Limit access to the test accounts until the HTTPS page, redirect and branch authorization checks have passed. Keep the existing Vercel preview separate.
 
 ## Point email links at Netlify
 
