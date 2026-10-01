@@ -5,7 +5,7 @@
 - Verify the intended Supabase project reference is `zwwdfywvxhdgdgtnltml`; take a backup before changing an existing schema.
 - Apply `supabase/schema.sql` only if the initial tables do not exist. Apply the dated migrations in order through `20261001_harden_phase1_table_grants.sql` if not yet applied. Confirm eight branches, RLS policies, anonymous table grants removed, and signed-in clients restricted to SELECT on the seven dashboard tables.
 - Keep the existing active Shane profile as `admin` and `sunbowhire@gmail.com` as the active Director. A signup alone never creates an active staff profile. The applicant verifies their email; the Director then chooses a role and branch and approves the request.
-- Confirm the Vercel target has the correct Supabase URL and publishable key. Remove `SUNBOW_PREVIEW_MODE` if it remains configured; the application ignores it. Do not use a Supabase server secret for this release.
+- Confirm the Netlify project has the correct Supabase URL and publishable key available to both the build and functions. Keep `NEXT_PUBLIC_PASSWORD_RESET_ENABLED=false` until recovery is tested. Do not use a Supabase server secret for this release.
 - In Supabase Auth URL Configuration, allow the exact deployed `https://<crm-host>/accept-invite` destination and set Site URL to the CRM origin. Check the email templates use `ConfirmationURL` or the correct `RedirectTo`. Enable password-reset email only after a fresh link reaches the correct page. Configure production SMTP for nationwide use.
 
 ## Email links across browsers and devices
@@ -30,7 +30,7 @@ Example Magic Link body: `<p><a href="{{ .RedirectTo }}?token_hash={{ .TokenHash
 4. Approve two test staff users assigned to different branches. Test UI and direct Data API queries: each sees only their own branch customers, leads, orders, jobs and activities; the Director sees nationwide counts.
 5. Disable one test user in Staff access. Their next dashboard request and direct Data API read must be denied. Unprofiled users and unapproved email signups must not enter the CRM.
 6. Reconcile live dashboard counts with database records. The operational tables were empty on 1 October 2026, so empty views are expected until data is imported or Phase 2/3 entry workflows exist. Check desktop and mobile registration, login, dashboards, branch filter, sign-out and staff review.
-7. After these checks, decide which Vercel deployment serves staff and adjust Deployment Protection for that target. Keep Supabase Auth and RLS in force. Monitor errors, email delivery and staff support during rollout.
+7. After these checks, direct staff to the verified Netlify production URL. Keep Supabase Auth and RLS in force. Monitor Netlify credit usage, errors, email delivery and staff support during rollout.
 
 ## Current scope
 
